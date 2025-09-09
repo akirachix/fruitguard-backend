@@ -11,3 +11,4 @@ class DataMonitoring(models.Model):
   
    def __str__(self):
        return f"{self.trap_fill_level}"
+   
