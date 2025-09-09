@@ -9,4 +9,4 @@ class DataMonitoring(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.trap_fill_level} "
+        return f"{self.trap_fill_level}"
