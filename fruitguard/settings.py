@@ -11,6 +11,19 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+MQTT_SERVER = os.getenv('MQTT_SERVER', 'broker.emqx.io')
+MQTT_PORT = int(os.getenv('MQTT_PORT', 8883))
+MQTT_KEEPALIVE = int(os.getenv('MQTT_KEEPALIVE', 60))
+MQTT_USER = os.getenv('MQTT_USER', '')
+MQTT_PASSWORD = os.getenv('MQTT_PASSWORD', '')
+TRAP_FILL_THRESHOLD = 7
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +59,12 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
 
 ]
+
+MQTT_SERVER = 'broker.emqx.io'
+MQTT_PORT = 1883
+MQTT_KEEPALIVE = 60
+
+
 
 
 REST_FRAMEWORK = {

@@ -10,6 +10,7 @@ class Device(models.Model):
 ]
 
     device_id = models.BigAutoField(primary_key=True)
+    device_identifier = models.CharField(max_length=100, unique=True, null=True, blank=True)
     status= models.CharField(max_length=50, choices= DEVICE_STATUS, default='Active')
     user_id=models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     created_at = models.DateField(auto_now_add=True)
