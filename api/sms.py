@@ -11,23 +11,21 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fruitguard.settings')
 django.setup()
 
-from device.models import Device
-from data_monitoring.mqtt import check_alert
+
 load_dotenv()
 SMS_USERNAME = os.getenv("SMS_USERNAME")
 SMS_PASSWORD = os.getenv("SMS_PASSWORD")
-SMS_API_SOURCE = os.getenv("SMS_API_SOURCE", "DefaultSource")
+SMS_API_SOURCE = os.getenv("SMS_API_SOURCE")
 SMS_API_URL = "https://api.smsleopard.com/v1/sms/send"
-
-def create_alert_message(trap_id, fill_level):
+def create_alert_message(first_name, trap_id, fill_level):
     template = (
-        "Hello, this is FruitGuard. \n\n"
-        "Trap {trap_id} fill level is {fill_level}.\n\n"
-        "Please empty the trap soon to avoid fruit fly infestation.\n\n"
+        "Hello {first_name},\n"
+        "Alert from FruitGuard:\n"
+        "Trap {trap_id} fill level is {fill_level}.\n"
+        "Please empty the trap soon to avoid fruit fly infestation.\n"
         "Thank you!"
     )
-    return template.format(trap_id=trap_id, fill_level=fill_level)
-
+    return template.format(first_name=first_name, trap_id=trap_id, fill_level=fill_level)
 def send_sms(phone_number, message):
     body = {
         "message": message,
@@ -46,11 +44,32 @@ def send_sms(phone_number, message):
         print(f"SMS sent successfully to {phone_number}: {response.json()}")
     except requests.RequestException as e:
         print(f"Failed to send SMS to {phone_number}: {e}")
-
-def send_alert(device_id, fill_level):
-    check_alert(device_id, fill_level)
-    
+def send_alert(device_pk, fill_level):
+    from device.models import Device
+    threshold = getattr(settings, 'TRAP_FILL_THRESHOLD', 5)
+    if fill_level <= threshold:
+        try:
+            device = Device.objects.select_related('user_id').get(device_id=device_pk)
+            phone_number = device.user_id.phone_number if device.user_id else None
+            if phone_number:
+                phone_number = phone_number.strip()
+                if phone_number.startswith("+"):
+                    phone_number = phone_number[1:]
+                if not phone_number.startswith("254") and phone_number.startswith("0"):
+                    phone_number = "254" + phone_number[1:]
+                farmer_name = getattr(device.user_id, 'first_name', None) or "Farmer"
+                message = create_alert_message(farmer_name, device.device_identifier, fill_level)
+                send_sms(phone_number, message)
+            else:
+                print(f"No phone number linked to device {device_pk}.")
+        except Device.DoesNotExist:
+            print(f"Device {device_pk} not found in database.")
+    else:
+        print(f"Trap fill level {fill_level} threshold {threshold}, no alert sent.")
 if __name__ == "__main__":
+    import django
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fruitguard.settings')
+    django.setup()
     test_device_id = 10
-    test_fill_level = 8
+    test_fill_level = 5
     send_alert(test_device_id, test_fill_level)

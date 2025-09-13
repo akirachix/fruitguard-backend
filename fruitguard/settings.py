@@ -21,7 +21,7 @@ MQTT_PORT = int(os.getenv('MQTT_PORT', 8883))
 MQTT_KEEPALIVE = int(os.getenv('MQTT_KEEPALIVE', 60))
 MQTT_USER = os.getenv('MQTT_USER', '')
 MQTT_PASSWORD = os.getenv('MQTT_PASSWORD', '')
-TRAP_FILL_THRESHOLD = 7
+TRAP_FILL_THRESHOLD = 5
 
 
 
