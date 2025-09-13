@@ -45,6 +45,8 @@ class User(AbstractUser):
     last_name = models.CharField(max_length=50, blank=True)
     phone_number = models.CharField(max_length=50)
     email = models.EmailField('email address', blank=True, null=True, unique=True)
+    location = models.CharField(max_length = 50, blank = True, null=True)
+    number_of_traps = models.IntegerField(blank = True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     user_type = models.CharField(max_length=50, choices=USER_TYPE_CHOICES, default='farmer')
     created_at = models.DateTimeField(auto_now_add=True)

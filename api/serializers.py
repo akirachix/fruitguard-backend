@@ -40,6 +40,8 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "phone_number",
             "email",
+            "location",
+            "number_of_traps",
             "profile_image",
             "user_type",
             "password",
