@@ -17,15 +17,25 @@ SMS_USERNAME = os.getenv("SMS_USERNAME")
 SMS_PASSWORD = os.getenv("SMS_PASSWORD")
 SMS_API_SOURCE = os.getenv("SMS_API_SOURCE")
 SMS_API_URL = "https://api.smsleopard.com/v1/sms/send"
+
 def create_alert_message(first_name, trap_id, fill_level):
-    template = (
+      
+    if fill_level == 5:
+        template = (
         "Hello {first_name},\n"
-        "Alert from FruitGuard:\n"
-        "Trap {trap_id} fill level is {fill_level}.\n"
-        "Please empty the trap soon to avoid fruit fly infestation.\n"
+        "Your trap is almost full.\n"
+        "Please empty it as soon as possible to keep fruit flies under control.\n"
+        "Thank you!"
+    )
+    elif fill_level == 4:
+        template = (
+        "Hello {first_name},\n"
+        "Warning: Your trap is full.\n"
+        "Please empty it now to prevent fruit flies from overflowing and damaging your mangoes.\n"
         "Thank you!"
     )
     return template.format(first_name=first_name, trap_id=trap_id, fill_level=fill_level)
+
 def send_sms(phone_number, message):
     body = {
         "message": message,
@@ -44,6 +54,7 @@ def send_sms(phone_number, message):
         print(f"SMS sent successfully to {phone_number}: {response.json()}")
     except requests.RequestException as e:
         print(f"Failed to send SMS to {phone_number}: {e}")
+
 def send_alert(device_pk, fill_level):
     from device.models import Device
     threshold = getattr(settings, 'TRAP_FILL_THRESHOLD', 5)
@@ -66,6 +77,7 @@ def send_alert(device_pk, fill_level):
             print(f"Device {device_pk} not found in database.")
     else:
         print(f"Trap fill level {fill_level} threshold {threshold}, no alert sent.")
+        
 if __name__ == "__main__":
     import django
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fruitguard.settings')
