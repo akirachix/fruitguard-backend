@@ -1,3 +1,4 @@
+
 """
 Django settings for fruitguard project.
 
@@ -32,10 +33,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-efs89bla=wix!e3o6&357*--bik3dz7w4#xe93pze3wh=5xsqx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
 
 
 # Application definition
@@ -47,12 +48,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'users',
     'device',
-    'data_monitoring',
     'api',
     'rest_framework',
     'rest_framework.authtoken',
+    'data_monitoring.apps.DataMonitoringConfig',
 
 ]
 
@@ -65,7 +67,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,10 +82,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'fruitguard.urls'
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -94,6 +101,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fruitguard.wsgi.application'
 
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    
+TIME_ZONE = 'UTC'
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -104,6 +121,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation
@@ -151,3 +169,22 @@ AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+
+# MQTT Configuration
+MQTT_BROKER = os.getenv('BROKER', '37a8480231f44d0f922df77b9e156dd8.s1.eu.hivemq.cloud')
+MQTT_PORT = int(os.getenv('PORT', 8883))
+MQTT_USERNAME = os.getenv('USERNAME', 'FruitGuard')
+MQTT_PASSWORD = os.getenv('PASSWORD', 'Fruitguard@2025')
+MQTT_TOPIC = os.getenv('TOPIC', 'esp32/#')
+MQTT_API_URL = os.getenv('API_URL', 'http://127.0.0.1:8000/api')
+MQTT_KEEPALIVE = 60
+SMS_USERNAME = os.getenv('SMS_USERNAME')
+SMS_PASSWORD = os.getenv('SMS_PASSWORD')
+SMS_API_SOURCE = os.getenv('SMS_API_SOURCE')
+# TRAP_FILL_THRESHOLD = int(os.getenv('TRAP_FILL_THRESHOLD', 5))
+
+
+
+

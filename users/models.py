@@ -43,12 +43,14 @@ class User(AbstractUser):
     username = None  
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
-    phone_number = models.CharField(max_length=50, unique=True)
+    phone_number = models.CharField(max_length=50,unique=True)
+    number_of_traps=models.CharField(blank=True,null=True)
     email = models.EmailField('email address', blank=True, null=True, unique=True)
     location = models.CharField(max_length = 50, blank = True, null=True)
     number_of_traps = models.IntegerField(blank = True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     user_type = models.CharField(max_length=50, choices=USER_TYPE_CHOICES, default='farmer')
+    location=models.CharField(blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()

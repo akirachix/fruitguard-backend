@@ -15,6 +15,7 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = '__all__'
 
+
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
@@ -27,6 +28,11 @@ class UserSerializer(serializers.ModelSerializer):
         ]
     )
     profile_image = serializers.ImageField(required=False, allow_null=True)
+    phone_number = serializers.CharField(
+required=False,
+        allow_blank=True,
+        validators=[UniqueValidator(queryset=User.objects.all(), message="This phone number is already in use.")]
+    )
 
     class Meta:
         model = User
@@ -39,6 +45,8 @@ class UserSerializer(serializers.ModelSerializer):
             "location",
             "number_of_traps",
             "profile_image",
+            "location",
+            "number_of_traps",
             "user_type",
             "password",
             "created_at",
@@ -46,12 +54,24 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
     def validate_phone_number(self, value):
-        print(f"phone number !!{value} @@@")
-        if not value.isdigit():
-            raise serializers.ValidationError("Phone number must contain digits only.")
-        if len(value) < 10 or len(value) > 15:
-            raise serializers.ValidationError("Phone number must be between 10 and 15 digits.")
+        if value:
+            if not value.isdigit():
+                raise serializers.ValidationError("Phone number must contain digits only.")
+            if len(value) < 10 or len(value) > 15:
+                raise serializers.ValidationError("Phone number must be between 10 and 15 digits.")
         return value
+    
+
+    
+    def validate(self, data):
+        user_type = self.context['request'].user.user_type
+        phone = data.get('phone_number', '')
+
+        if user_type == 'farmer' and not phone:
+            raise serializers.ValidationError({
+                'phone_number': 'Phone number is required for farmers.'
+            })
+        return data
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -71,6 +91,20 @@ class UserSerializer(serializers.ModelSerializer):
 
         user.save()
         return user
+    
+    def update(self, instance, validated_data):
+        profile_image=validated_data.pop('profile',{})
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        if password:
+            instance.set_password(password)
+        if profile_image:
+            instance.profile_image = profile_image
+        instance.save()
+        return instance
+    
+    
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
