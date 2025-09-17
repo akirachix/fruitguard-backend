@@ -17,17 +17,16 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from api.sms import send_alert
 class DataMonitoringViewSet(viewsets.ViewSet):
- 
     def list(self, request):
         queryset = DataMonitoring.objects.all()
         serializer = DataMonitoringSerializer(queryset, many=True)
         return Response(serializer.data)
-   
+
     def retrieve(self, request, pk=None):
         instance = get_object_or_404(DataMonitoring, pk=pk)
         serializer = DataMonitoringSerializer(instance)
         return Response(serializer.data)
-   
+        
     def create(self, request):
         serializer = DataMonitoringSerializer(data=request.data)
         if serializer.is_valid():
