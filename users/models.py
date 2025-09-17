@@ -43,7 +43,7 @@ class User(AbstractUser):
     username = None  
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
-    phone_number = models.CharField(max_length=50)
+    phone_number = models.CharField(max_length=50, unique=True)
     email = models.EmailField('email address', blank=True, null=True, unique=True)
     location = models.CharField(max_length = 50, blank = True, null=True)
     number_of_traps = models.IntegerField(blank = True, null=True)

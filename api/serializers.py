@@ -15,10 +15,6 @@ class DeviceSerializer(serializers.ModelSerializer):
         model = Device
         fields = '__all__'
 
-
-
-
-
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
