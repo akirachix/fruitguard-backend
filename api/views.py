@@ -13,32 +13,34 @@ from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer, LoginSerializer
 from rest_framework.decorators import api_view
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from api.sms import send_alert
+class DataMonitoringViewSet(viewsets.ViewSet):
+ 
+    def list(self, request):
+        queryset = DataMonitoring.objects.all()
+        serializer = DataMonitoringSerializer(queryset, many=True)
+        return Response(serializer.data)
+   
+    def retrieve(self, request, pk=None):
+        instance = get_object_or_404(DataMonitoring, pk=pk)
+        serializer = DataMonitoringSerializer(instance)
+        return Response(serializer.data)
+   
+    def create(self, request):
+        serializer = DataMonitoringSerializer(data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            trap_fill_level = request.data.get("trap_fill_level", 0)
+            topic = request.data.get("topic", "")
+            if topic == "esp32/alert" and trap_fill_level > 0:
+                send_alert(instance.device.pk, trap_fill_level)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Create your views here.
-class DataMonitoringViewSet(viewsets.ModelViewSet):
-   queryset = DataMonitoring.objects.all()
-   serializer_class = DataMonitoringSerializer
 
-   def create(self, request, *args, **kwargs):
-       api_payload = request.data
-       serializer = self.get_serializer(data=api_payload)
-
-       try:
-           if serializer.is_valid():
-               serializer.save()
-               if hasattr(request, 'msg') and request.msg.topic == "esp32/alert" and api_payload["trap_fill_level"] > 0:
-                   from api.sms import send_alert
-                   device_pk = api_payload.get('device_pk')
-                   send_alert(device_pk, api_payload['trap_fill_level'])
-               response = requests.post(API_URL.rstrip('/') + '/data_monitoring/', json=api_payload)
-
-               return Response(serializer.data, status=201)
-           else:
-               return Response(serializer.errors, status=400)
-       except json.JSONDecodeError:
-           pass  
-       except Exception as e:
-           pass   
 
 class DeviceViewSet(viewsets.ModelViewSet):
     queryset = Device.objects.all()
