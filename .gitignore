@@ -1,6 +1,6 @@
 __pycache__
 db.sqlite3
-./env
+.env
 media/profile_images/Esther.jpg
 media/profile_images/Rectangle_27.png
 media/profile_images/logo.png

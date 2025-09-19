@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -130,10 +131,13 @@ TIME_ZONE = 'UTC'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
+DATABASES = {"default": dj_database_url.config(default=os.getenv("DATABASE_URL"))}
+if not os.getenv("DATABASE_URL"):
+    DATABASES = {
+        'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        
     }
 }
 
@@ -194,7 +198,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-# MQTT Configuration
 MQTT_BROKER = os.getenv('BROKER', '37a8480231f44d0f922df77b9e156dd8.s1.eu.hivemq.cloud')
 MQTT_PORT = int(os.getenv('PORT', 8883))
 MQTT_USERNAME = os.getenv('USERNAME', 'FruitGuard')
