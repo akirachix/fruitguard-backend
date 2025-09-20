@@ -14,6 +14,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
 load_dotenv()
 
@@ -129,8 +130,9 @@ TIME_ZONE = 'UTC'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
+DATABASES = {"default": dj_database_url.config(default=os.getenv("DATABASE_URL"))}
+if not os.getenv("DATABASE_URL"):
+    DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
@@ -206,7 +208,3 @@ SMS_USERNAME = os.getenv('SMS_USERNAME')
 SMS_PASSWORD = os.getenv('SMS_PASSWORD')
 SMS_API_SOURCE = os.getenv('SMS_API_SOURCE')
 TRAP_FILL_THRESHOLD = int(os.getenv('TRAP_FILL_THRESHOLD', 5))
-
-
-
-
