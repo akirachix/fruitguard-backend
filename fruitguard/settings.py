@@ -130,14 +130,12 @@ TIME_ZONE = 'UTC'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 DATABASES = {"default": dj_database_url.config(default=os.getenv("DATABASE_URL"))}
 if not os.getenv("DATABASE_URL"):
     DATABASES = {
-        'default': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-        
     }
 }
 
@@ -196,7 +194,9 @@ AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-# MQTT parts
+
+
+# MQTT Configuration
 MQTT_BROKER = os.getenv('BROKER', '37a8480231f44d0f922df77b9e156dd8.s1.eu.hivemq.cloud')
 MQTT_PORT = int(os.getenv('PORT', 8883))
 MQTT_USERNAME = os.getenv('USERNAME', 'FruitGuard')
@@ -208,7 +208,5 @@ SMS_USERNAME = os.getenv('SMS_USERNAME')
 SMS_PASSWORD = os.getenv('SMS_PASSWORD')
 SMS_API_SOURCE = os.getenv('SMS_API_SOURCE')
 TRAP_FILL_THRESHOLD = int(os.getenv('TRAP_FILL_THRESHOLD', 5))
-
-
 
 
