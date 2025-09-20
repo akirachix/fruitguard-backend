@@ -196,8 +196,6 @@ AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-
 MQTT_BROKER = os.getenv('BROKER', '37a8480231f44d0f922df77b9e156dd8.s1.eu.hivemq.cloud')
 MQTT_PORT = int(os.getenv('PORT', 8883))
 MQTT_USERNAME = os.getenv('USERNAME', 'FruitGuard')
